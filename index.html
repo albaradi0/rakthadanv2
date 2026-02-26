@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>রক্তদান — Blood Donation Bangladesh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --red: #C0152A;
+    --red-dark: #8B0E1E;
+    --red-light: #FF3347;
+    --cream: #FDF6EE;
+    --ink: #1A0A0D;
+    --muted: #7A6068;
+    --card: #FFFFFF;
+    --border: #EDE0D8;
+    --success: #1A7A4A;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--ink); min-height:100vh; }
+
+  /* NAV */
+  nav {
+    background:var(--red);
+    padding:0 2rem;
+    display:flex; align-items:center; justify-content:space-between;
+    height:64px;
+    position:sticky; top:0; z-index:100;
+    box-shadow:0 2px 20px rgba(192,21,42,0.3);
+  }
+  .nav-logo { font-family:'Playfair Display',serif; color:#fff; font-size:1.5rem; font-weight:900; letter-spacing:-0.5px; text-decoration:none; }
+  .nav-logo span { color:#FFB3BC; }
+  .nav-links { display:flex; gap:1rem; align-items:center; }
+  .nav-links a { color:rgba(255,255,255,0.85); text-decoration:none; font-size:.9rem; font-weight:500; transition:.2s; }
+  .nav-links a:hover { color:#fff; }
+  .btn { padding:.5rem 1.25rem; border-radius:6px; font-weight:600; font-size:.875rem; cursor:pointer; border:none; transition:.2s; text-decoration:none; display:inline-block; }
+  .btn-white { background:#fff; color:var(--red); }
+  .btn-logout { background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.35); padding:.45rem 1rem; border-radius:6px; font-size:.875rem; font-weight:600; cursor:pointer; transition:.2s; font-family:'DM Sans',sans-serif; }
+  .btn-logout:hover { background:rgba(255,255,255,0.25); }
+  .nav-user { color:rgba(255,255,255,0.85); font-size:.85rem; font-weight:500; }
+  .btn-white:hover { background:var(--cream); }
+  .btn-red { background:var(--red); color:#fff; }
+  .btn-red:hover { background:var(--red-dark); }
+  .btn-outline { background:transparent; border:2px solid var(--red); color:var(--red); }
+  .btn-outline:hover { background:var(--red); color:#fff; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--red-dark) 0%, var(--red) 50%, #E8203A 100%);
+    padding: 5rem 2rem 4rem;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(255,255,255,0.08) 0%, transparent 60%);
+  }
+  .hero-drop {
+    font-size:5rem; margin-bottom:1rem;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  .hero h1 { font-family:'Playfair Display',serif; color:#fff; font-size:clamp(2rem,5vw,3.5rem); font-weight:900; line-height:1.1; margin-bottom:1rem; }
+  .hero p { color:rgba(255,255,255,0.85); font-size:1.1rem; max-width:500px; margin:0 auto 2.5rem; }
+  .hero-stats { display:flex; gap:2rem; justify-content:center; flex-wrap:wrap; margin-top:2rem; }
+  .stat { text-align:center; }
+  .stat-num { font-family:'Playfair Display',serif; font-size:2rem; color:#fff; font-weight:900; }
+  .stat-label { color:rgba(255,255,255,0.7); font-size:.8rem; text-transform:uppercase; letter-spacing:1px; }
+
+  /* SEARCH BOX */
+  .search-section { background:#fff; padding:2rem; box-shadow:0 4px 30px rgba(0,0,0,0.08); position:relative; z-index:10; }
+  .search-grid { max-width:900px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; align-items:end; }
+  .form-group { display:flex; flex-direction:column; gap:.4rem; }
+  .form-group label { font-size:.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+  select, input { padding:.7rem 1rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:.9rem; color:var(--ink); background:#fff; outline:none; transition:.2s; }
+  select:focus, input:focus { border-color:var(--red); box-shadow:0 0 0 3px rgba(192,21,42,0.1); }
+  .btn-search { padding:.75rem 2rem; background:var(--red); color:#fff; border:none; border-radius:8px; font-weight:600; font-size:.95rem; cursor:pointer; transition:.2s; white-space:nowrap; }
+  .btn-search:hover { background:var(--red-dark); transform:translateY(-1px); }
+
+  /* CONTENT */
+  .content { max-width:1100px; margin:0 auto; padding:2.5rem 1.5rem; }
+  .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+  .section-title { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; }
+  .results-count { color:var(--muted); font-size:.875rem; }
+
+  /* DONOR GRID */
+  .donor-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.25rem; }
+  .donor-card {
+    background:#fff; border-radius:14px; padding:1.5rem;
+    border:1.5px solid var(--border);
+    transition:.25s; cursor:default;
+    position:relative; overflow:hidden;
+  }
+  .donor-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:4px;
+    background:var(--red);
+  }
+  .donor-card:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(192,21,42,0.12); border-color:var(--red); }
+  .card-top { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; }
+  .blood-badge {
+    width:52px; height:52px; border-radius:50%;
+    background:var(--red); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
+    flex-shrink:0; box-shadow:0 4px 12px rgba(192,21,42,0.3);
+  }
+  .donor-name { font-weight:600; font-size:1rem; margin-bottom:.2rem; }
+  .donor-since { font-size:.75rem; color:var(--muted); }
+  .card-info { display:grid; gap:.5rem; }
+  .info-row { display:flex; align-items:center; gap:.5rem; font-size:.85rem; color:var(--muted); }
+  .info-row span:first-child { font-size:1rem; }
+  .info-val { color:var(--ink); font-weight:500; }
+  .available-badge {
+    display:inline-flex; align-items:center; gap:.35rem;
+    padding:.25rem .75rem; border-radius:20px;
+    font-size:.75rem; font-weight:600; margin-top:.75rem;
+  }
+  .available { background:#DCFCE7; color:var(--success); }
+  .unavailable { background:#FEE2E2; color:#B91C1C; }
+  .dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+
+  /* EMPTY STATE */
+  .empty { text-align:center; padding:4rem 2rem; color:var(--muted); }
+  .empty-icon { font-size:3rem; margin-bottom:1rem; }
+
+  /* LOADER */
+  .loader { display:flex; justify-content:center; padding:3rem; }
+  .spinner { width:40px; height:40px; border:3px solid var(--border); border-top-color:var(--red); border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* TOAST */
+  .toast { position:fixed; bottom:2rem; right:2rem; background:var(--ink); color:#fff; padding:.9rem 1.5rem; border-radius:10px; font-size:.875rem; transform:translateY(100px); opacity:0; transition:.3s; z-index:999; }
+  .toast.show { transform:translateY(0); opacity:1; }
+
+  /* FOOTER */
+  footer { background:var(--ink); color:rgba(255,255,255,0.6); text-align:center; padding:2rem; font-size:.85rem; margin-top:4rem; }
+  footer a { color:var(--red-light); text-decoration:none; }
+
+  @media(max-width:600px) {
+    .nav-links .hide-mobile { display:none; }
+    .hero { padding:3rem 1.5rem 2.5rem; }
+    .hero-drop { font-size:3rem; }
+  }
+
+  /* DONOR PROFILE MODAL */
+  .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:500; align-items:center; justify-content:center; padding:1rem; }
+  .modal-bg.show { display:flex; }
+  .donor-modal { background:#fff; border-radius:18px; width:100%; max-width:440px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.2); animation:modalIn .25s ease; }
+  @keyframes modalIn { from{transform:scale(.95);opacity:0} to{transform:scale(1);opacity:1} }
+  .dm-top { background:linear-gradient(135deg,var(--red-dark),var(--red)); padding:2rem; text-align:center; }
+  .dm-badge { width:72px; height:72px; border-radius:50%; background:rgba(255,255,255,0.2); border:3px solid rgba(255,255,255,0.4); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; color:#fff; margin:0 auto 1rem; }
+  .dm-name { color:#fff; font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:900; margin-bottom:.25rem; }
+  .dm-since { color:rgba(255,255,255,0.75); font-size:.82rem; }
+  .dm-body { padding:1.5rem; }
+  .dm-grid { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:1.25rem; }
+  .dm-item label { display:block; font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:.3rem; }
+  .dm-item .val { font-size:.9rem; font-weight:500; background:#F9F5F3; padding:.5rem .85rem; border-radius:7px; display:flex; align-items:center; gap:.4rem; }
+  .dm-item.full { grid-column:1/-1; }
+  .dm-avail { display:flex; align-items:center; justify-content:center; gap:.5rem; padding:.6rem 1rem; border-radius:8px; font-weight:700; font-size:.875rem; margin-bottom:1.25rem; }
+  .dm-avail.yes { background:#DCFCE7; color:#166534; }
+  .dm-avail.no  { background:#FEE2E2; color:#B91C1C; }
+  .dm-close { width:100%; padding:.8rem; background:var(--red); color:#fff; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:.95rem; font-weight:700; cursor:pointer; transition:.2s; }
+  .dm-close:hover { background:var(--red-dark); }
+  .donor-card { cursor:pointer; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">রক্ত<span>দান</span></a>
+  <div class="nav-links" id="navLinks">
+    <!-- ✅ FIX: Removed "hide-mobile" class so it shows on Android/mobile -->
+    <a href="signup.html" class="nav-btn-outline" id="navRegister">Become a Donor</a>
+    <a href="login.html" class="nav-btn-solid" id="navLogin">Sign In</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-drop">🩸</div>
+  <h1>Every Drop Counts.<br/>Find a Donor Near You.</h1>
+  <p>Bangladesh's trusted blood donor network. Free, fast, and always available.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num" id="totalDonors">—</div><div class="stat-label">Donors</div></div>
+    <div class="stat"><div class="stat-num" id="totalDivisions">8</div><div class="stat-label">Divisions</div></div>
+    <div class="stat"><div class="stat-num">64</div><div class="stat-label">Districts</div></div>
+  </div>
+</div>
+
+<div class="search-section">
+  <div class="search-grid">
+    <div class="form-group">
+      <label>Blood Group</label>
+      <select id="filterBlood">
+        <option value="">All Groups</option>
+        <option>A+</option><option>A-</option>
+        <option>B+</option><option>B-</option>
+        <option>AB+</option><option>AB-</option>
+        <option>O+</option><option>O-</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Division</label>
+      <select id="filterDivision" onchange="updateDistricts()">
+        <option value="">All Divisions</option>
+        <option>Dhaka</option><option>Chattogram</option><option>Rajshahi</option>
+        <option>Khulna</option><option>Barishal</option><option>Sylhet</option>
+        <option>Rangpur</option><option>Mymensingh</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>District</label>
+      <select id="filterDistrict">
+        <option value="">All Districts</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>City / Upazila</label>
+      <input type="text" id="filterCity" placeholder="e.g. Mirpur, Gulshan…"/>
+    </div>
+    <button class="btn-search" onclick="searchDonors()">🔍 Search</button>
+  </div>
+</div>
+
+<div class="content">
+  <div class="section-header">
+    <h2 class="section-title">Available Donors</h2>
+    <span class="results-count" id="resultsCount">Loading…</span>
+  </div>
+  <div id="donorGrid" class="donor-grid">
+    <div class="loader"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<footer>
+  <p>রক্তদান &copy; 2026 — Saving lives across Bangladesh 🇧🇩 &nbsp;|&nbsp; <a href="login.html">Donor Login</a> &nbsp;|&nbsp; <a href="signup.html">Register</a></p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBDiiieqfwoN1bmrYwbaF9UpWCqAZhGAB8",
+    authDomain: "blood-donate-89909.firebaseapp.com",
+    projectId: "blood-donate-89909",
+    storageBucket: "blood-donate-89909.firebasestorage.app",
+    messagingSenderId: "102069228183",
+    appId: "1:102069228183:web:aa36468420d2d436620fd2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    const navLinks = document.getElementById('navLinks');
+    if (user) {
+      document.getElementById('navLogin').style.display = 'none';
+      document.getElementById('navRegister').style.display = 'none';
+      navLinks.insertAdjacentHTML('beforeend', `
+        <a href="donor-dashboard.html" class="nav-user hide-mobile">👤 ${user.displayName || user.email?.split('@')[0] || 'My Profile'}</a>
+        <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+      `);
+    }
+  });
+
+  window.doLogout = async () => {
+    await signOut(auth);
+    window.location.reload();
+  };
+
+  const districts = {
+    Dhaka: ["Dhaka","Gazipur","Narayanganj","Narsingdi","Manikganj","Munshiganj","Rajbari","Faridpur","Madaripur","Shariatpur","Gopalganj","Kishoreganj","Tangail"],
+    Chattogram: ["Chattogram","Cox's Bazar","Rangamati","Bandarban","Khagrachhari","Feni","Noakhali","Lakshmipur","Comilla","Chandpur","Brahmanbaria"],
+    Rajshahi: ["Rajshahi","Natore","Sirajganj","Pabna","Bogura","Joypurhat","Naogaon","Chapainawabganj"],
+    Khulna: ["Khulna","Bagerhat","Satkhira","Jessore","Narail","Magura","Jhenaidah","Chuadanga","Meherpur","Kushtia"],
+    Barishal: ["Barishal","Bhola","Patuakhali","Barguna","Pirojpur","Jhalokati"],
+    Sylhet: ["Sylhet","Moulvibazar","Habiganj","Sunamganj"],
+    Rangpur: ["Rangpur","Dinajpur","Thakurgaon","Panchagarh","Nilphamari","Lalmonirhat","Kurigram","Gaibandha"],
+    Mymensingh: ["Mymensingh","Netrokona","Kishoreganj","Jamalpur","Sherpur"]
+  };
+
+  window.updateDistricts = function() {
+    const div = document.getElementById('filterDivision').value;
+    const sel = document.getElementById('filterDistrict');
+    sel.innerHTML = '<option value="">All Districts</option>';
+    if (div && districts[div]) {
+      districts[div].forEach(d => sel.innerHTML += `<option>${d}</option>`);
+    }
+  };
+
+  let allDonors = [];
+
+  async function loadDonors() {
+    try {
+      const snap = await getDocs(collection(db, "donors"));
+      allDonors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      document.getElementById('totalDonors').textContent = allDonors.length;
+      renderDonors(allDonors);
+    } catch(e) {
+      allDonors = getDemoData();
+      document.getElementById('totalDonors').textContent = allDonors.length + '+';
+      renderDonors(allDonors);
+    }
+  }
+
+  window.searchDonors = function() {
+    const blood = document.getElementById('filterBlood').value;
+    const division = document.getElementById('filterDivision').value;
+    const district = document.getElementById('filterDistrict').value;
+    const city = document.getElementById('filterCity').value.toLowerCase();
+
+    let filtered = allDonors.filter(d => {
+      if (blood && d.bloodGroup !== blood) return false;
+      if (division && d.division !== division) return false;
+      if (district && d.district !== district) return false;
+      if (city && !d.city?.toLowerCase().includes(city)) return false;
+      return true;
+    });
+    renderDonors(filtered);
+  };
+
+  function renderDonors(donors) {
+    const grid = document.getElementById('donorGrid');
+    document.getElementById('resultsCount').textContent = `${donors.length} donor${donors.length !== 1 ? 's' : ''} found`;
+    if (!donors.length) {
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🔍</div><p>No donors found for this search.<br/>Try a different blood group or area.</p></div>`;
+      return;
+    }
+    grid.innerHTML = donors.map(d => `
+      <div class="donor-card" onclick="openDonorModal(${JSON.stringify(d).replace(/`/g,"'")})">
+        <div class="card-top">
+          <div class="blood-badge">${d.bloodGroup || '?'}</div>
+          <div>
+            <div class="donor-name">${d.name || 'Anonymous'}</div>
+            <div class="donor-since">Donor since ${d.joinedYear || '2024'}</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="info-row"><span>📍</span><span class="info-val">${[d.city, d.district, d.division].filter(Boolean).join(', ') || 'Bangladesh'}</span></div>
+          <div class="info-row"><span>📞</span><span class="info-val">${d.phone || 'Not provided'}</span></div>
+          <div class="info-row"><span>🗓</span><span>Last donated: <span class="info-val">${d.lastDonated || 'N/A'}</span></span></div>
+          <div class="info-row"><span>👤</span><span class="info-val">${d.gender || '—'} ${d.age ? '· Age ' + d.age : ''}</span></div>
+        </div>
+        <span class="available-badge ${d.available !== false ? 'available' : 'unavailable'}">
+          <span class="dot"></span>${d.available !== false ? 'Available to Donate' : 'Unavailable'}
+        </span>
+      </div>
+    `).join('');
+  }
+
+  function getDemoData() {
+    return [
+      { name:"Rahim Ahmed",  bloodGroup:"A+",  division:"Dhaka",      district:"Dhaka",      city:"Mirpur",          phone:"01712345678", lastDonated:"Jan 2026", available:true,  joinedYear:2023, age:28, gender:"Male"   },
+      { name:"Karim Hossain", bloodGroup:"O+",  division:"Dhaka",      district:"Narayanganj",city:"Narayanganj Sadar",phone:"01812345678", lastDonated:"Dec 2025", available:true,  joinedYear:2022, age:34, gender:"Male"   },
+      { name:"Fatima Begum",  bloodGroup:"B+",  division:"Chattogram", district:"Chattogram", city:"Agrabad",          phone:"01912345678", lastDonated:"Feb 2026", available:false, joinedYear:2024, age:25, gender:"Female" },
+      { name:"Nadia Islam",   bloodGroup:"AB+", division:"Sylhet",     district:"Sylhet",     city:"Sylhet Sadar",     phone:"01612345678", lastDonated:"Nov 2025", available:true,  joinedYear:2021, age:30, gender:"Female" },
+      { name:"Tariq Mahmud",  bloodGroup:"O-",  division:"Rajshahi",   district:"Rajshahi",   city:"Rajshahi City",    phone:"01512345678", lastDonated:"Jan 2026", available:true,  joinedYear:2023, age:22, gender:"Male"   },
+      { name:"Sadia Rahman",  bloodGroup:"B-",  division:"Khulna",     district:"Khulna",     city:"Khulna City",      phone:"01312345678", lastDonated:"Dec 2025", available:true,  joinedYear:2022, age:27, gender:"Female" },
+    ];
+  }
+
+  window.openDonorModal = function(d) {
+    document.getElementById('dm-badge').textContent      = d.bloodGroup || '?';
+    document.getElementById('dm-name').textContent       = d.name || 'Anonymous';
+    document.getElementById('dm-since').textContent      = 'Donor since ' + (d.joinedYear || '2024');
+    document.getElementById('dm-blood').textContent      = d.bloodGroup || '—';
+    document.getElementById('dm-avail-text').textContent = d.available !== false ? '✅ Available' : '❌ Unavailable';
+    document.getElementById('dm-loc').textContent        = [d.city, d.district, d.division].filter(Boolean).join(', ') || 'Bangladesh';
+
+    const avail = document.getElementById('dm-avail');
+    avail.textContent = d.available !== false ? '✅ Available to Donate' : '❌ Currently Unavailable';
+    avail.className   = 'dm-avail ' + (d.available !== false ? 'yes' : 'no');
+
+    document.getElementById('dm-locked').style.display = 'none';
+    document.getElementById('dm-private').innerHTML = `
+      <div class="dm-grid" style="margin-top:.85rem;">
+        <div class="dm-item full"><label>📍 Full Location</label>
+          <div class="val">${[d.city, d.district, d.division].filter(Boolean).join(', ') || '—'}</div>
+        </div>
+        <div class="dm-item full"><label>📞 Phone Number</label>
+          <div class="val">${d.phone || 'Not provided'}</div>
+        </div>
+        <div class="dm-item"><label>🗓 Last Donated</label>
+          <div class="val">${d.lastDonated || 'N/A'}</div>
+        </div>
+        <div class="dm-item"><label>🎂 Age</label>
+          <div class="val">${d.age ? d.age + ' years' : 'Not set'}</div>
+        </div>
+        <div class="dm-item"><label>👤 Gender</label>
+          <div class="val">${d.gender || 'Not set'}</div>
+        </div>
+        <div class="dm-item"><label>📅 Member Since</label>
+          <div class="val">${d.joinedYear || '—'}</div>
+        </div>
+      </div>`;
+
+    document.getElementById('donorModal').classList.add('show');
+  };
+
+  window.closeDonorModal = function(e) {
+    if (e.target === document.getElementById('donorModal'))
+      document.getElementById('donorModal').classList.remove('show');
+  };
+
+  loadDonors();
+</script>
+
+<!-- DONOR PROFILE MODAL -->
+<div class="modal-bg" id="donorModal" onclick="closeDonorModal(event)">
+  <div class="donor-modal">
+    <div class="dm-top">
+      <div class="dm-badge" id="dm-badge">?</div>
+      <div class="dm-name"  id="dm-name">—</div>
+      <div class="dm-since" id="dm-since">—</div>
+    </div>
+    <div class="dm-body">
+      <div class="dm-avail" id="dm-avail">—</div>
+
+      <!-- PUBLIC INFO — always visible -->
+      <div class="dm-grid">
+        <div class="dm-item"><label>Blood Group</label><div class="val" id="dm-blood">—</div></div>
+        <div class="dm-item"><label>Availability</label><div class="val" id="dm-avail-text">—</div></div>
+        <div class="dm-item full"><label>📍 General Area</label><div class="val" id="dm-loc">—</div></div>
+      </div>
+
+      <!-- PRIVATE INFO — only for logged-in users -->
+      <div id="dm-private"><!-- injected by JS --></div>
+
+      <!-- LOCKED BANNER — only for guests -->
+      <div id="dm-locked" style="display:none;">
+        <div style="background:#FFF8F0;border:1.5px dashed #F5C2A0;border-radius:10px;padding:1.25rem;text-align:center;margin:.75rem 0;">
+          <div style="font-size:1.5rem;margin-bottom:.4rem;">🔒</div>
+          <p style="font-weight:700;font-size:.9rem;color:var(--ink);margin-bottom:.3rem;">Sign in to see full contact info</p>
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem;">Phone number and last donation date are only visible to registered members.</p>
+          <div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;">
+            <a href="login.html" style="padding:.55rem 1.2rem;background:var(--red);color:#fff;border-radius:7px;font-weight:700;font-size:.85rem;text-decoration:none;">Sign In</a>
+            <a href="signup.html" style="padding:.55rem 1.2rem;background:#fff;color:var(--red);border:1.5px solid var(--red);border-radius:7px;font-weight:700;font-size:.85rem;text-decoration:none;">Register Free</a>
+          </div>
+        </div>
+      </div>
+
+      <button class="dm-close" onclick="document.getElementById('donorModal').classList.remove('show')">Close</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

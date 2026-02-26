@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Panel — রক্তদান</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root { --red:#C0152A; --red-dark:#8B0E1E; --cream:#FDF6EE; --ink:#1A0A0D; --muted:#7A6068; --border:#EDE0D8; --sidebar:13rem; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:#F4F0ED; color:var(--ink); min-height:100vh; display:flex; }
+  body.hidden { visibility:hidden; opacity:0; }
+  .auth-loading { position:fixed; inset:0; background:#F4F0ED; display:flex; align-items:center; justify-content:center; z-index:9999; font-family:'Hind Siliguri',sans-serif; font-size:1.25rem; color:#C0152A; font-weight:700; }
+  .auth-loading.gone { display:none; }
+
+  .sidebar { width:var(--sidebar); background:var(--ink); min-height:100vh; display:flex; flex-direction:column; position:fixed; left:0; top:0; bottom:0; z-index:50; }
+  .sidebar-logo { padding:1.5rem 1.25rem 1rem; border-bottom:1px solid rgba(255,255,255,0.1); }
+  .logo-bangla { font-family:'Hind Siliguri',sans-serif; color:#fff; font-size:1.5rem; font-weight:700; line-height:1; }
+  .logo-bangla span { color:#FF6B7A; }
+  .logo-sub { font-family:'DM Sans',sans-serif; font-size:.65rem; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:1.5px; margin-top:.3rem; }
+  .sidebar-nav { padding:.75rem 0; flex:1; }
+  .nav-item { display:flex; align-items:center; gap:.75rem; padding:.75rem 1.25rem; color:rgba(255,255,255,0.65); font-size:.875rem; font-weight:500; cursor:pointer; transition:.2s; border-left:3px solid transparent; }
+  .nav-item:hover, .nav-item.active { color:#fff; background:rgba(255,255,255,0.06); border-left-color:var(--red); }
+  .nav-item .icon { font-size:1rem; width:20px; text-align:center; }
+  .sidebar-footer { padding:1rem 1.25rem; border-top:1px solid rgba(255,255,255,0.1); }
+  .btn-signout { width:100%; padding:.6rem; background:rgba(192,21,42,0.2); color:#FF6B7A; border:1px solid rgba(192,21,42,0.3); border-radius:6px; font-size:.8rem; font-weight:600; cursor:pointer; transition:.2s; }
+  .btn-signout:hover { background:var(--red); color:#fff; }
+
+  .main { margin-left:var(--sidebar); flex:1; padding:2rem; min-height:100vh; }
+  .page-header { margin-bottom:1.75rem; }
+  .page-header h1 { font-family:'Playfair Display',serif; font-size:1.75rem; font-weight:900; }
+  .page-header p { color:var(--muted); font-size:.875rem; margin-top:.25rem; }
+
+  .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:1rem; margin-bottom:1.75rem; }
+  .stat-card { background:#fff; border-radius:12px; padding:1.25rem; border:1px solid var(--border); }
+  .stat-label { font-size:.72rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:.4rem; }
+  .stat-num { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; }
+  .stat-sub { font-size:.72rem; color:var(--muted); margin-top:.2rem; }
+  .stat-card.red .stat-num { color:var(--red); }
+
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  .table-card { background:#fff; border-radius:12px; border:1px solid var(--border); overflow:hidden; }
+  .table-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.75rem; }
+  .table-title { font-weight:700; font-size:1rem; }
+  .table-actions { display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; }
+  .search-input { padding:.5rem .9rem; border:1.5px solid var(--border); border-radius:7px; font-size:.85rem; outline:none; transition:.2s; font-family:'DM Sans',sans-serif; }
+  .search-input:focus { border-color:var(--red); }
+  table { width:100%; border-collapse:collapse; }
+  th { background:#FAFAFA; padding:.7rem 1rem; text-align:left; font-size:.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  td { padding:.8rem 1rem; font-size:.855rem; border-bottom:1px solid #F7F0ED; vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:#FFFAF8; }
+  .badge { padding:.22rem .6rem; border-radius:20px; font-size:.72rem; font-weight:700; }
+  .badge-green { background:#DCFCE7; color:#166534; }
+  .badge-red { background:#FEE2E2; color:#B91C1C; }
+  .blood-tag { display:inline-block; background:var(--red); color:#fff; padding:.18rem .5rem; border-radius:5px; font-size:.78rem; font-weight:700; }
+  .action-btns { display:flex; gap:.35rem; flex-wrap:wrap; }
+  .btn-action { padding:.28rem .65rem; border-radius:5px; font-size:.75rem; font-weight:600; border:none; cursor:pointer; transition:.2s; white-space:nowrap; }
+  .btn-view   { background:#EFF6FF; color:#1D4ED8; }
+  .btn-view:hover { background:#DBEAFE; }
+  .btn-toggle { background:#F0FDF4; color:#166534; }
+  .btn-toggle:hover { background:#DCFCE7; }
+  .btn-delete { background:#FEE2E2; color:#B91C1C; }
+  .btn-delete:hover { background:#FECACA; }
+  .btn-approve { background:#DCFCE7; color:#166534; }
+  .btn-approve:hover { background:#BBF7D0; }
+  .btn-primary { padding:.55rem 1.1rem; background:var(--red); color:#fff; border:none; border-radius:7px; font-size:.85rem; font-weight:600; cursor:pointer; transition:.2s; font-family:'DM Sans',sans-serif; }
+  .btn-primary:hover { background:var(--red-dark); }
+  .loader { text-align:center; padding:3rem; color:var(--muted); }
+
+  /* ── INFO MODAL ── */
+  .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; padding:1rem; }
+  .modal-bg.show { display:flex; }
+  .modal { background:#fff; border-radius:16px; width:100%; max-width:520px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.2); }
+  .modal-top { background:linear-gradient(135deg,var(--red-dark),var(--red)); padding:1.75rem; display:flex; align-items:center; gap:1.25rem; }
+  .modal-avatar { width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:1.4rem; font-weight:900; color:#fff; font-family:'Playfair Display',serif; flex-shrink:0; border:2px solid rgba(255,255,255,0.3); }
+  .modal-name { color:#fff; font-weight:700; font-size:1.15rem; margin-bottom:.2rem; }
+  .modal-sub  { color:rgba(255,255,255,0.75); font-size:.82rem; }
+  .modal-body { padding:1.5rem; }
+  .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; }
+  .info-item label { display:block; font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:.3rem; }
+  .info-item .val { font-size:.875rem; font-weight:500; background:#F9F5F3; padding:.5rem .85rem; border-radius:7px; min-height:36px; display:flex; align-items:center; word-break:break-all; }
+  .info-item.full { grid-column:1/-1; }
+  .modal-footer { padding:1rem 1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:.75rem; flex-wrap:wrap; }
+  .btn-modal-close  { padding:.55rem 1.2rem; background:var(--border); color:var(--ink); border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:.875rem; transition:.2s; }
+  .btn-modal-close:hover { background:#DDD0CB; }
+  .btn-modal-delete { padding:.55rem 1.2rem; background:var(--red); color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:.875rem; transition:.2s; }
+  .btn-modal-delete:hover { background:var(--red-dark); }
+
+  /* ── CONFIRM MODAL ── */
+  .confirm-modal { background:#fff; border-radius:14px; padding:2rem; max-width:420px; width:90%; box-shadow:0 24px 60px rgba(0,0,0,0.2); }
+  .confirm-modal h3 { font-family:'Playfair Display',serif; font-size:1.25rem; margin-bottom:.6rem; }
+  .confirm-modal p  { color:var(--muted); font-size:.875rem; margin-bottom:1.5rem; line-height:1.65; }
+  .confirm-btns { display:flex; gap:.75rem; justify-content:flex-end; }
+  .btn-cancel { padding:.6rem 1.2rem; background:var(--border); color:var(--ink); border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:.875rem; }
+
+  @media(max-width:768px) { .sidebar{display:none} .main{margin-left:0;padding:1.25rem} .info-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<div class="auth-loading" id="authLoader">রক্তদান লোড হচ্ছে…</div>
+<div class="sidebar" style="visibility:hidden" id="sidebarEl">
+  <div class="sidebar-logo">
+    <div class="logo-bangla">রক্ত<span>দান</span></div>
+    <div class="logo-sub">Admin Panel</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="showPanel('dashboard',this)"><span class="icon">📊</span>Dashboard</div>
+    <div class="nav-item" onclick="showPanel('donors',this)"><span class="icon">🩸</span>All Donors</div>
+    <div class="nav-item" onclick="showPanel('pending',this)"><span class="icon">⏳</span>Pending</div>
+    <div class="nav-item" onclick="showPanel('search',this)"><span class="icon">🔍</span>Search</div>
+    <div class="nav-item" onclick="showPanel('settings',this)"><span class="icon">⚙️</span>Settings</div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="btn-signout" onclick="doSignOut()">Sign Out</button>
+  </div>
+</div>
+
+<main class="main" style="visibility:hidden" id="mainEl">
+
+  <!-- DASHBOARD -->
+  <div id="panel-dashboard" class="panel active">
+    <div class="page-header"><h1>Dashboard</h1><p>Welcome back, Admin 👋</p></div>
+    <div class="stats-row">
+      <div class="stat-card red"><div class="stat-label">Total Donors</div><div class="stat-num" id="s-total">—</div><div class="stat-sub">All registered</div></div>
+      <div class="stat-card"><div class="stat-label">Available</div><div class="stat-num" id="s-available">—</div><div class="stat-sub">Ready to donate</div></div>
+      <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-num" id="s-pending">—</div><div class="stat-sub">Need approval</div></div>
+      <div class="stat-card"><div class="stat-label">This Month</div><div class="stat-num" id="s-month">—</div><div class="stat-sub">New signups</div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-header"><span class="table-title">Recent Donors</span></div>
+      <div id="recentTable"><div class="loader">Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- ALL DONORS -->
+  <div id="panel-donors" class="panel">
+    <div class="page-header"><h1>All Donors</h1><p>Click 👁 View to see full info, or delete a donor</p></div>
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Donor List</span>
+        <div class="table-actions">
+          <input class="search-input" id="donorSearch" placeholder="Search name, blood, area…" oninput="filterTable()"/>
+          <select class="search-input" id="bloodFilter" onchange="filterTable()">
+            <option value="">All Blood Groups</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+          </select>
+        </div>
+      </div>
+      <div id="donorsTable"><div class="loader">Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- PENDING -->
+  <div id="panel-pending" class="panel">
+    <div class="page-header"><h1>Pending Approvals</h1><p>Review new donor registrations</p></div>
+    <div class="table-card">
+      <div class="table-header"><span class="table-title">Awaiting Approval</span></div>
+      <div id="pendingTable"><div class="loader">Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div id="panel-search" class="panel">
+    <div class="page-header"><h1>Donor Search</h1><p>Filter by blood group and division</p></div>
+    <div class="table-card" style="padding:1.5rem;margin-bottom:1rem;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;align-items:end;">
+        <div>
+          <label style="font-size:.72rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.35rem;text-transform:uppercase;">Blood Group</label>
+          <select class="search-input" id="adminBlood" style="width:100%"><option value="">Any</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
+        </div>
+        <div>
+          <label style="font-size:.72rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.35rem;text-transform:uppercase;">Division</label>
+          <select class="search-input" id="adminDiv" style="width:100%"><option value="">Any</option><option>Dhaka</option><option>Chattogram</option><option>Rajshahi</option><option>Khulna</option><option>Barishal</option><option>Sylhet</option><option>Rangpur</option><option>Mymensingh</option></select>
+        </div>
+        <div><button class="btn-primary" onclick="adminSearch()">Search</button></div>
+      </div>
+    </div>
+    <div class="table-card"><div id="searchResults"><p style="padding:2rem;color:var(--muted);text-align:center;">Use filters above to search.</p></div></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="panel-settings" class="panel">
+    <div class="page-header"><h1>Settings</h1></div>
+    <div class="table-card" style="padding:2rem;max-width:520px;">
+      <h3 style="font-family:'Playfair Display',serif;margin-bottom:1.25rem;">Admin Actions</h3>
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+        <div>
+          <p style="font-size:.875rem;color:var(--muted);margin-bottom:.5rem;">Promote a user to admin by entering their Firebase UID:</p>
+          <div style="display:flex;gap:.5rem;">
+            <input id="promoteUid" class="search-input" placeholder="Firebase UID" style="flex:1"/>
+            <button class="btn-primary" onclick="promoteAdmin()">Promote</button>
+          </div>
+          <p style="font-size:.75rem;color:var(--muted);margin-top:.4rem;">Find UIDs from Firebase Console → Authentication → Users, or from the 👁 View panel of any donor.</p>
+        </div>
+        <div style="background:#FEF9C3;border:1px solid #FDE047;border-radius:10px;padding:1rem;font-size:.83rem;color:#854D0E;line-height:1.6;">
+          <strong>⚠️ About deleting users:</strong><br/>
+          Clicking "Delete" removes the donor from <strong>Firestore</strong> — they instantly disappear from the public list.<br/><br/>
+          Their <strong>login account</strong> (email/password, Google, phone) stays in Firebase Auth. To fully delete it: go to <strong>Firebase Console → Authentication → Users</strong> → find by email → delete. Or use Firebase Admin SDK in a Cloud Function for full deletion from the admin panel.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── USER INFO MODAL ── -->
+<div class="modal-bg" id="infoModal">
+  <div class="modal">
+    <div class="modal-top">
+      <div class="modal-avatar" id="mi-avatar">?</div>
+      <div>
+        <div class="modal-name" id="mi-name">—</div>
+        <div class="modal-sub"  id="mi-sub">—</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="info-grid">
+        <div class="info-item"><label>Blood Group</label><div class="val" id="mi-blood">—</div></div>
+        <div class="info-item"><label>Availability</label><div class="val" id="mi-avail">—</div></div>
+        <div class="info-item"><label>Division</label><div class="val" id="mi-division">—</div></div>
+        <div class="info-item"><label>District</label><div class="val" id="mi-district">—</div></div>
+        <div class="info-item"><label>City / Upazila</label><div class="val" id="mi-city">—</div></div>
+        <div class="info-item"><label>Phone</label><div class="val" id="mi-phone">—</div></div>
+        <div class="info-item"><label>Last Donated</label><div class="val" id="mi-lastdonated">—</div></div>
+        <div class="info-item"><label>Joined Year</label><div class="val" id="mi-joined">—</div></div>
+        <div class="info-item full"><label>Email</label><div class="val" id="mi-email">—</div></div>
+        <div class="info-item full"><label>Role</label><div class="val" id="mi-role">—</div></div>
+        <div class="info-item full"><label>Firebase UID (for promote/auth delete)</label><div class="val" id="mi-uid" style="font-family:monospace;font-size:.75rem;user-select:all;">—</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeInfoModal()">Close</button>
+      <div style="display:flex;gap:.6rem;">
+        <button class="btn-action btn-toggle" style="padding:.5rem .9rem" id="mi-toggle-btn" onclick="toggleFromModal()">Toggle Availability</button>
+        <button class="btn-modal-delete" onclick="deleteFromModal()">🗑 Delete Donor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE CONFIRM ── -->
+<div class="modal-bg" id="deleteModal">
+  <div class="confirm-modal">
+    <h3>Delete Donor?</h3>
+    <p>
+      <strong id="deleteTargetName">This donor</strong> will be permanently removed from the donor list and will no longer appear publicly.<br/><br/>
+      Their <strong>login credentials</strong> remain in Firebase Auth. Remove them manually from Firebase Console → Authentication if needed.
+    </p>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn-modal-delete" onclick="confirmDelete()">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // 🔧 REPLACE WITH YOUR FIREBASE CONFIG
+  const firebaseConfig = {
+    apiKey: "AIzaSyBDiiieqfwoN1bmrYwbaF9UpWCqAZhGAB8",
+    authDomain: "blood-donate-89909.firebaseapp.com",
+    projectId: "blood-donate-89909",
+    storageBucket: "blood-donate-89909.firebasestorage.app",
+    messagingSenderId: "102069228183",
+    appId: "1:102069228183:web:aa36468420d2d436620fd2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let allDonors = [];
+  let currentModalDonor = null;
+  let deleteTarget = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    const snap = await getDoc(doc(db, 'donors', user.uid));
+    if (snap.data()?.role !== 'admin') { window.location.href = 'donor-dashboard.html'; return; }
+    // Auth confirmed — reveal page
+    document.getElementById('authLoader').classList.add('gone');
+    document.getElementById('sidebarEl').style.visibility = 'visible';
+    document.getElementById('mainEl').style.visibility   = 'visible';
+    loadAll();
+  });
+
+  async function loadAll() {
+    const snap = await getDocs(collection(db, 'donors'));
+    allDonors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    const now       = new Date();
+    const available = allDonors.filter(d => d.available !== false).length;
+    const pending   = allDonors.filter(d => d.approved === false).length;
+    const newThis   = allDonors.filter(d => {
+      if (!d.createdAt) return false;
+      const dt = d.createdAt.toDate?.() || new Date(d.createdAt);
+      return dt.getMonth() === now.getMonth() && dt.getFullYear() === now.getFullYear();
+    }).length;
+
+    document.getElementById('s-total').textContent     = allDonors.length;
+    document.getElementById('s-available').textContent = available;
+    document.getElementById('s-pending').textContent   = pending;
+    document.getElementById('s-month').textContent     = newThis;
+
+    renderRecentTable(allDonors.slice(0, 8));
+    renderDonorsTable(allDonors);
+    renderPendingTable(allDonors.filter(d => d.approved === false));
+  }
+
+  function tableWrap(rows) {
+    return `<div style="overflow-x:auto"><table>
+      <thead><tr><th>Name</th><th>Blood</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+  }
+
+  function donorRow(d, extraBtns = '') {
+    const loc = [d.city, d.district, d.division].filter(Boolean).join(', ') || '—';
+    const nameEsc = (d.name || '').replace(/'/g, "\\'");
+    return `<tr>
+      <td>
+        <strong>${d.name || '—'}</strong>
+        <div style="font-size:.73rem;color:var(--muted);margin-top:.1rem">${d.email || d.phone || 'No contact'}</div>
+      </td>
+      <td><span class="blood-tag">${d.bloodGroup || '?'}</span></td>
+      <td style="font-size:.82rem;max-width:160px">${loc}</td>
+      <td><span class="badge ${d.available !== false ? 'badge-green' : 'badge-red'}">${d.available !== false ? 'Available' : 'Unavailable'}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-action btn-view" onclick="openInfoModal('${d.id}')">👁 View</button>
+          ${extraBtns}
+          <button class="btn-action btn-delete" onclick="promptDelete('${d.id}','${nameEsc}')">🗑 Delete</button>
+        </div>
+      </td>
+    </tr>`;
+  }
+
+  function renderRecentTable(donors) {
+    document.getElementById('recentTable').innerHTML = donors.length
+      ? tableWrap(donors.map(d => donorRow(d)).join(''))
+      : '<p style="padding:2rem;text-align:center;color:var(--muted)">No donors yet.</p>';
+  }
+
+  function renderDonorsTable(donors) {
+    document.getElementById('donorsTable').innerHTML = donors.length
+      ? tableWrap(donors.map(d => donorRow(d,
+          `<button class="btn-action btn-toggle" onclick="toggleAvail('${d.id}',${d.available !== false})">${d.available !== false ? 'Set Unavail' : 'Set Avail'}</button>`
+        )).join(''))
+      : '<p style="padding:2rem;text-align:center;color:var(--muted)">No donors found.</p>';
+  }
+
+  function renderPendingTable(donors) {
+    document.getElementById('pendingTable').innerHTML = donors.length
+      ? tableWrap(donors.map(d => donorRow(d,
+          `<button class="btn-action btn-approve" onclick="approveDonor('${d.id}')">✅ Approve</button>`
+        )).join(''))
+      : '<p style="padding:2rem;text-align:center;color:var(--muted)">No pending approvals 🎉</p>';
+  }
+
+  window.filterTable = () => {
+    const q = document.getElementById('donorSearch').value.toLowerCase();
+    const b = document.getElementById('bloodFilter').value;
+    renderDonorsTable(allDonors.filter(d => {
+      const txt = [d.name, d.bloodGroup, d.division, d.district, d.city, d.email, d.phone].join(' ').toLowerCase();
+      return (!q || txt.includes(q)) && (!b || d.bloodGroup === b);
+    }));
+  };
+
+  window.adminSearch = () => {
+    const blood = document.getElementById('adminBlood').value;
+    const div   = document.getElementById('adminDiv').value;
+    const res   = allDonors.filter(d => (!blood || d.bloodGroup === blood) && (!div || d.division === div));
+    document.getElementById('searchResults').innerHTML = res.length
+      ? tableWrap(res.map(d => donorRow(d)).join(''))
+      : '<p style="padding:2rem;text-align:center;color:var(--muted)">No donors found.</p>';
+  };
+
+  // ── VIEW FULL INFO ──
+  window.openInfoModal = (id) => {
+    const d = allDonors.find(x => x.id === id);
+    if (!d) return;
+    currentModalDonor = d;
+
+    const initials = (d.name || 'D').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    document.getElementById('mi-avatar').textContent      = initials;
+    document.getElementById('mi-name').textContent        = d.name   || 'Unknown';
+    document.getElementById('mi-sub').textContent         = d.email  || d.phone || 'No contact info';
+    document.getElementById('mi-blood').textContent       = d.bloodGroup   || '—';
+    document.getElementById('mi-avail').textContent       = d.available !== false ? '✅ Available' : '❌ Unavailable';
+    document.getElementById('mi-division').textContent    = d.division     || '—';
+    document.getElementById('mi-district').textContent    = d.district     || '—';
+    document.getElementById('mi-city').textContent        = d.city         || '—';
+    document.getElementById('mi-phone').textContent       = d.phone        || '—';
+    document.getElementById('mi-email').textContent       = d.email        || '—';
+    document.getElementById('mi-lastdonated').textContent = d.lastDonated  || '—';
+    document.getElementById('mi-joined').textContent      = d.joinedYear   || '—';
+    document.getElementById('mi-role').textContent        = d.role         || 'donor';
+    document.getElementById('mi-uid').textContent         = d.id;
+
+    const toggleBtn = document.getElementById('mi-toggle-btn');
+    toggleBtn.textContent = d.available !== false ? '🔴 Set Unavailable' : '🟢 Set Available';
+
+    document.getElementById('infoModal').classList.add('show');
+  };
+
+  window.closeInfoModal = () => {
+    document.getElementById('infoModal').classList.remove('show');
+    currentModalDonor = null;
+  };
+
+  window.toggleFromModal = async () => {
+    if (!currentModalDonor) return;
+    const newVal = !(currentModalDonor.available !== false);
+    await updateDoc(doc(db, 'donors', currentModalDonor.id), { available: newVal });
+    const d = allDonors.find(x => x.id === currentModalDonor.id);
+    if (d) d.available = newVal;
+    currentModalDonor = { ...currentModalDonor, available: newVal };
+    openInfoModal(currentModalDonor.id);
+    renderDonorsTable(allDonors);
+  };
+
+  window.deleteFromModal = () => {
+    if (!currentModalDonor) return;
+    const name = currentModalDonor.name;
+    const id   = currentModalDonor.id;
+    closeInfoModal();
+    promptDelete(id, name);
+  };
+
+  window.promptDelete = (id, name) => {
+    deleteTarget = id;
+    document.getElementById('deleteTargetName').textContent = name || 'This donor';
+    document.getElementById('deleteModal').classList.add('show');
+  };
+
+  window.closeDeleteModal = () => {
+    document.getElementById('deleteModal').classList.remove('show');
+    deleteTarget = null;
+  };
+
+  window.confirmDelete = async () => {
+    if (!deleteTarget) return;
+    await deleteDoc(doc(db, 'donors', deleteTarget));
+    allDonors = allDonors.filter(d => d.id !== deleteTarget);
+    closeDeleteModal();
+    loadAll();
+  };
+
+  window.approveDonor = async (id) => {
+    await updateDoc(doc(db, 'donors', id), { approved: true });
+    allDonors = allDonors.map(d => d.id === id ? { ...d, approved: true } : d);
+    renderPendingTable(allDonors.filter(d => d.approved === false));
+  };
+
+  window.toggleAvail = async (id, current) => {
+    await updateDoc(doc(db, 'donors', id), { available: !current });
+    allDonors = allDonors.map(d => d.id === id ? { ...d, available: !current } : d);
+    renderDonorsTable(allDonors);
+  };
+
+  window.promoteAdmin = async () => {
+    const uid = document.getElementById('promoteUid').value.trim();
+    if (!uid) return alert('Please enter a UID first.');
+    await updateDoc(doc(db, 'donors', uid), { role: 'admin' });
+    alert('✅ User promoted to admin!');
+  };
+
+  window.doSignOut = async () => { await fbSignOut(auth); window.location.href = 'login.html'; };
+
+  window.showPanel = (name, el) => {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    el.classList.add('active');
+  };
+</script>
+</body>
+</html>

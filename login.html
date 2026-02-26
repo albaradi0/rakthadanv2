@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sign In — রক্তদান</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root { --red:#C0152A; --red-dark:#8B0E1E; --cream:#FDF6EE; --ink:#1A0A0D; --muted:#7A6068; --border:#EDE0D8; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--cream); min-height:100vh; display:flex; flex-direction:column; }
+  nav { background:var(--red); padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:64px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .nav-logo { font-family:'Playfair Display',serif; color:#fff; font-size:1.5rem; font-weight:900; text-decoration:none; }
+  .nav-logo span { color:#FFB3BC; }
+  .page { flex:1; display:flex; align-items:center; justify-content:center; padding:2rem; }
+  .card { background:#fff; border-radius:16px; padding:2.5rem; width:100%; max-width:440px; box-shadow:0 8px 40px rgba(0,0,0,0.08); border:1px solid var(--border); position: relative; overflow: hidden; }
+  .card-icon { text-align:center; font-size:2.5rem; margin-bottom:1rem; }
+  h1 { font-family:'Playfair Display',serif; font-size:1.75rem; font-weight:900; text-align:center; margin-bottom:.4rem; }
+  .subtitle { color:var(--muted); font-size:.875rem; text-align:center; margin-bottom:1.75rem; }
+  .subtitle a { color:var(--red); text-decoration:none; font-weight:600; }
+
+  .form-group { margin-bottom:1rem; }
+  label { display:block; font-size:.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:.35rem; }
+  input { width:100%; padding:.75rem 1rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:.9rem; outline:none; transition:.2s; }
+  input:focus { border-color:var(--red); box-shadow:0 0 0 3px rgba(192,21,42,0.1); }
+  .forgot-link { text-align:right; margin-top:.3rem; }
+  .forgot-link a { font-size:.78rem; color:var(--red); text-decoration:none; font-weight:500; }
+  .btn-submit { width:100%; padding:.85rem; background:var(--red); color:#fff; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:700; cursor:pointer; transition:.2s; margin-top:.25rem; }
+  .btn-submit:hover { background:var(--red-dark); transform:translateY(-1px); box-shadow:0 6px 20px rgba(192,21,42,0.25); }
+
+  .error-msg { background:#FEE2E2; color:#B91C1C; padding:.6rem 1rem; border-radius:6px; font-size:.82rem; margin-bottom:.75rem; display:none; }
+  .error-msg.show { display:block; }
+  .success-msg { background:#DCFCE7; color:#166534; padding:.6rem 1rem; border-radius:6px; font-size:.82rem; margin-bottom:.75rem; display:none; }
+  .success-msg.show { display:block; }
+
+  /* Forgot password panel */
+  #forgotPanel { display:none; }
+  #loginPanel { display:block; }
+
+  .back-link { display:flex; align-items:center; gap:.5rem; color:var(--red); font-size:.85rem; font-weight:600; cursor:pointer; margin-bottom:1.5rem; }
+  
+  /* Animation */
+  .fade-in { animation: fadeIn 0.3s ease-in-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">রক্ত<span>দান</span></a>
+  <a href="index.html" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:.875rem;font-weight:500;">← Find Donors</a>
+</nav>
+
+<div class="page">
+  <div class="card">
+
+    <!-- LOGIN PANEL -->
+    <div id="loginPanel" class="fade-in">
+      <div class="card-icon">🩸</div>
+      <h1>Welcome Back</h1>
+      <p class="subtitle">New here? <a href="signup.html">Create a free account</a></p>
+
+      <div id="errorMsg" class="error-msg"></div>
+      <div id="successMsg" class="success-msg"></div>
+
+      <!-- EMAIL LOGIN -->
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Your password"/>
+        <div class="forgot-link"><a href="#" onclick="showForgot()">Forgot password?</a></div>
+      </div>
+      <button class="btn-submit" onclick="loginEmail()">Sign In →</button>
+    </div>
+
+    <!-- FORGOT PASSWORD PANEL -->
+    <div id="forgotPanel" class="fade-in">
+      <div class="back-link" onclick="showLogin()">← Back to Sign In</div>
+      <div class="card-icon">🔑</div>
+      <h1>Reset Password</h1>
+      <p class="subtitle" style="margin-bottom:1.5rem;">Enter your email and we'll send you a reset link.</p>
+      <div id="forgotError" class="error-msg"></div>
+      <div id="forgotSuccess" class="success-msg"></div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="forgotEmail" placeholder="you@example.com"/>
+      </div>
+      <button class="btn-submit" onclick="sendReset()">Send Reset Link →</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="recaptcha-container"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // 🔧 REPLACE WITH YOUR CONFIG
+  const firebaseConfig = {
+    apiKey: "AIzaSyBDiiieqfwoN1bmrYwbaF9UpWCqAZhGAB8",
+    authDomain: "blood-donate-89909.firebaseapp.com",
+    projectId: "blood-donate-89909",
+    storageBucket: "blood-donate-89909.firebasestorage.app",
+    messagingSenderId: "102069228183",
+    appId: "1:102069228183:web:aa36468420d2d436620fd2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  function showErr(id, msg) { const e = document.getElementById(id); e.textContent=msg; e.classList.add('show'); setTimeout(()=>e.classList.remove('show'),4000); }
+  function showSucc(id, msg) { const e = document.getElementById(id); e.textContent=msg; e.classList.add('show'); }
+
+  async function redirectByRole(user) {
+    const snap = await getDoc(doc(db,'donors',user.uid));
+    const role = snap.data()?.role;
+    if (role === 'admin') window.location.href = 'admin.html';
+    else window.location.href = 'donor-dashboard.html';
+  }
+
+  window.loginEmail = async () => {
+    try {
+      const cred = await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
+      redirectByRole(cred.user);
+    } catch(e) { showErr('errorMsg', 'Invalid email or password.'); }
+  };
+
+  window.sendReset = async () => {
+    const email = document.getElementById('forgotEmail').value;
+    if (!email) return showErr('forgotError','Please enter your email.');
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showSucc('forgotSuccess','✅ Reset email sent! Check your inbox. If not in your inbox, please check your Spam folder.');
+    } catch(e) { showErr('forgotError', 'No account found with this email.'); }
+  };
+
+  window.showForgot = () => { document.getElementById('loginPanel').style.display='none'; document.getElementById('forgotPanel').style.display='block'; };
+  window.showLogin = () => { document.getElementById('loginPanel').style.display='block'; document.getElementById('forgotPanel').style.display='none'; };
+</script>
+</body>
+</html>
+

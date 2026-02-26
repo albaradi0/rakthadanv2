@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>My Profile — রক্তদান</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root { --red:#C0152A; --red-dark:#8B0E1E; --cream:#FDF6EE; --ink:#1A0A0D; --muted:#7A6068; --border:#EDE0D8; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--ink); }
+  nav { background:var(--red); padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:64px; }
+  .nav-logo { font-family:'Playfair Display',serif; color:#fff; font-size:1.5rem; font-weight:900; text-decoration:none; }
+  .nav-logo span { color:#FFB3BC; }
+  .nav-right { display:flex; align-items:center; gap:1rem; }
+  .nav-right a { color:rgba(255,255,255,0.85); font-size:.875rem; text-decoration:none; font-weight:500; }
+  .nav-right a:hover { color:#fff; }
+  .btn-signout { padding:.45rem 1.1rem; background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); border-radius:6px; font-size:.875rem; font-weight:600; cursor:pointer; transition:.2s; font-family:'DM Sans',sans-serif; }
+  .btn-signout:hover { background:rgba(192,21,42,0.6); border-color:rgba(255,255,255,0.5); }
+
+  .container { max-width:800px; margin:2.5rem auto; padding:0 1.5rem; }
+  .profile-header { background:linear-gradient(135deg,var(--red-dark),var(--red)); border-radius:16px; padding:2rem; color:#fff; display:flex; align-items:center; gap:1.5rem; margin-bottom:1.5rem; }
+  .avatar { width:72px; height:72px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900; flex-shrink:0; }
+  .profile-info h2 { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900; }
+  .profile-info p { color:rgba(255,255,255,0.8); font-size:.875rem; margin-top:.2rem; }
+  .profile-badge { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); padding:.3rem .8rem; border-radius:20px; font-size:.8rem; font-weight:700; margin-top:.6rem; display:inline-block; }
+
+  .card { background:#fff; border-radius:14px; border:1px solid var(--border); margin-bottom:1.25rem; overflow:hidden; }
+  .card-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .card-title { font-weight:700; font-size:1rem; }
+  .card-body { padding:1.5rem; }
+
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .form-group { display:flex; flex-direction:column; gap:.35rem; }
+  .form-group.full { grid-column:1/-1; }
+  label { font-size:.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+  input, select { padding:.7rem 1rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:.9rem; color:var(--ink); outline:none; transition:.2s; }
+  input:focus, select:focus { border-color:var(--red); box-shadow:0 0 0 3px rgba(192,21,42,0.1); }
+  input:disabled { background:#F9F5F3; cursor:not-allowed; }
+
+  .availability-toggle { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; }
+  .toggle-info h4 { font-weight:600; font-size:.95rem; }
+  .toggle-info p { font-size:.8rem; color:var(--muted); margin-top:.15rem; }
+  .toggle { position:relative; width:52px; height:28px; }
+  .toggle input { opacity:0; width:0; height:0; }
+  .toggle-slider { position:absolute; inset:0; background:#E5E7EB; border-radius:28px; cursor:pointer; transition:.3s; }
+  .toggle-slider:before { content:''; position:absolute; width:22px; height:22px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.3s; box-shadow:0 2px 4px rgba(0,0,0,0.2); }
+  .toggle input:checked + .toggle-slider { background:var(--red); }
+  .toggle input:checked + .toggle-slider:before { transform:translateX(24px); }
+
+  .btn-save { padding:.75rem 2rem; background:var(--red); color:#fff; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:.95rem; font-weight:700; cursor:pointer; transition:.2s; }
+  .btn-save:hover { background:var(--red-dark); }
+  .success-toast { background:#DCFCE7; color:#166534; padding:.65rem 1rem; border-radius:8px; font-size:.85rem; display:none; margin-top:.75rem; }
+  .success-toast.show { display:block; }
+
+  .email-verify-warn { background:#FEF9C3; color:#854D0E; padding:.75rem 1rem; border-radius:8px; font-size:.82rem; display:flex; align-items:center; gap:.5rem; margin-bottom:1.25rem; }
+
+  .hide-mobile { display:inline; } @media(max-width:600px) { .form-grid { grid-template-columns:1fr; } .profile-header { flex-direction:column; text-align:center; } .hide-mobile { display:none; } }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">রক্ত<span>দান</span></a>
+  <div class="nav-right">
+    <a href="index.html" class="hide-mobile">🔍 Find Donors</a>
+    <button class="btn-signout" onclick="doSignOut()">🚪 Sign Out</button>
+  </div>
+</nav>
+
+<div class="container">
+  <div id="emailWarn" class="email-verify-warn" style="display:none;">
+    ⚠️ Please verify your email address. If Email not in your inbox, please check your Spam folder <a href="#" onclick="resendVerification()" style="color:var(--red);font-weight:600;margin-left:.25rem;">Resend verification email</a>
+  </div>
+
+  <div class="profile-header">
+    <div class="avatar" id="avatarInitial">?</div>
+    <div class="profile-info">
+      <h2 id="profileName">Loading…</h2>
+      <p id="profileEmail">—</p>
+      <span class="profile-badge" id="profileBlood">Blood: —</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Availability Status</span>
+    </div>
+    <div class="availability-toggle">
+      <div class="toggle-info">
+        <h4>Available to Donate</h4>
+        <p>When enabled, you appear as available to all visitors</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="availToggle" onchange="saveAvailability()"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">My Profile</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="dName" placeholder="Your name"/>
+        </div>
+        <div class="form-group">
+          <label>Blood Group</label>
+          <select id="dBlood">
+            <option value="">Select…</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Division</label>
+          <select id="dDivision" onchange="loadDistricts()">
+            <option value="">Select…</option>
+            <option>Dhaka</option><option>Chattogram</option><option>Rajshahi</option>
+            <option>Khulna</option><option>Barishal</option><option>Sylhet</option>
+            <option>Rangpur</option><option>Mymensingh</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>District</label>
+          <select id="dDistrict"><option value="">Select division first</option></select>
+        </div>
+        <div class="form-group full">
+          <label>City / Upazila</label>
+          <input type="text" id="dCity" placeholder="e.g. Mirpur, Gulshan…"/>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="dPhone" placeholder="+880 1X XX XXX XXX"/>
+        </div>
+        <div class="form-group">
+          <label>Last Donated</label>
+          <input type="text" id="dLastDonated" placeholder="e.g. Jan 2026"/>
+        </div>
+        <div class="form-group">
+          <label>Age</label>
+          <input type="number" id="dAge" placeholder="e.g. 25" min="18" max="60"/>
+        </div>
+        <div class="form-group">
+          <label>Gender</label>
+          <select id="dGender">
+            <option value="">Select…</option>
+            <option>Male</option><option>Female</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <button class="btn-save" onclick="saveProfile()">Save Changes</button>
+        <div id="saveToast" class="success-toast">✅ Profile updated!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // 🔧 REPLACE WITH YOUR CONFIG
+  const firebaseConfig = {
+    apiKey: "AIzaSyBDiiieqfwoN1bmrYwbaF9UpWCqAZhGAB8",
+    authDomain: "blood-donate-89909.firebaseapp.com",
+    projectId: "blood-donate-89909",
+    storageBucket: "blood-donate-89909.firebasestorage.app",
+    messagingSenderId: "102069228183",
+    appId: "1:102069228183:web:aa36468420d2d436620fd2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const districts = {
+    Dhaka:["Dhaka","Gazipur","Narayanganj","Narsingdi","Manikganj","Munshiganj","Rajbari","Faridpur","Madaripur","Shariatpur","Gopalganj","Kishoreganj","Tangail"],
+    Chattogram:["Chattogram","Cox's Bazar","Rangamati","Bandarban","Khagrachhari","Feni","Noakhali","Lakshmipur","Comilla","Chandpur","Brahmanbaria"],
+    Rajshahi:["Rajshahi","Natore","Sirajganj","Pabna","Bogura","Joypurhat","Naogaon","Chapainawabganj"],
+    Khulna:["Khulna","Bagerhat","Satkhira","Jessore","Narail","Magura","Jhenaidah","Chuadanga","Meherpur","Kushtia"],
+    Barishal:["Barishal","Bhola","Patuakhali","Barguna","Pirojpur","Jhalokati"],
+    Sylhet:["Sylhet","Moulvibazar","Habiganj","Sunamganj"],
+    Rangpur:["Rangpur","Dinajpur","Thakurgaon","Panchagarh","Nilphamari","Lalmonirhat","Kurigram","Gaibandha"],
+    Mymensingh:["Mymensingh","Netrokona","Kishoreganj","Jamalpur","Sherpur"]
+  };
+
+  window.loadDistricts = () => {
+    const div = document.getElementById('dDivision').value;
+    const sel = document.getElementById('dDistrict');
+    sel.innerHTML = '<option value="">Select district</option>';
+    (districts[div]||[]).forEach(d=>sel.innerHTML+=`<option>${d}</option>`);
+  };
+
+  let currentUser;
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return window.location.href = 'login.html';
+    currentUser = user;
+    if (user.email && !user.emailVerified) document.getElementById('emailWarn').style.display='flex';
+    const snap = await getDoc(doc(db,'donors',user.uid));
+    const data = snap.data() || {};
+    document.getElementById('dName').value = data.name || user.displayName || '';
+    document.getElementById('dBlood').value = data.bloodGroup || '';
+    document.getElementById('dDivision').value = data.division || '';
+    window.loadDistricts();
+    document.getElementById('dDistrict').value = data.district || '';
+    document.getElementById('dCity').value = data.city || '';
+    document.getElementById('dPhone').value = data.phone || user.phoneNumber || '';
+    document.getElementById('dLastDonated').value = data.lastDonated || '';
+    document.getElementById('dAge').value = data.age || '';
+    document.getElementById('dGender').value = data.gender || '';
+    document.getElementById('availToggle').checked = data.available !== false;
+    document.getElementById('profileName').textContent = data.name || user.displayName || 'Donor';
+    document.getElementById('profileEmail').textContent = user.email || user.phoneNumber || '';
+    document.getElementById('profileBlood').textContent = 'Blood: ' + (data.bloodGroup || 'Not set');
+    const initials = (data.name||user.displayName||'D').split(' ').map(w=>w[0]).slice(0,2).join('');
+    document.getElementById('avatarInitial').textContent = initials;
+  });
+
+  window.saveProfile = async () => {
+    await updateDoc(doc(db,'donors',currentUser.uid),{
+      name: document.getElementById('dName').value,
+      bloodGroup: document.getElementById('dBlood').value,
+      division: document.getElementById('dDivision').value,
+      district: document.getElementById('dDistrict').value,
+      city: document.getElementById('dCity').value,
+      phone: document.getElementById('dPhone').value,
+      lastDonated: document.getElementById('dLastDonated').value,
+      age: parseInt(document.getElementById('dAge').value) || null,
+      gender: document.getElementById('dGender').value,
+    });
+    const t = document.getElementById('saveToast');
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),3000);
+    document.getElementById('profileBlood').textContent = 'Blood: ' + document.getElementById('dBlood').value;
+  };
+
+  window.saveAvailability = async () => {
+    const val = document.getElementById('availToggle').checked;
+    await updateDoc(doc(db,'donors',currentUser.uid),{available:val});
+  };
+
+  window.doSignOut = async () => { await signOut(auth); window.location.href='index.html'; };
+  window.resendVerification = async () => { await sendEmailVerification(currentUser); alert('Verification email sent!'); };
+</script>
+</body>
+</html>
